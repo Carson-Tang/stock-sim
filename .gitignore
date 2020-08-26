@@ -5,7 +5,8 @@
 *.dylib
 *.test
 *.out
-
-webapp/node_modules
-webapp/build
-webapp/npm-debug.log*
+node_modules
+auth_config.json
+app/node_modules
+app/build
+app/npm-debug.log*
