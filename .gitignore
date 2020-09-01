@@ -6,7 +6,6 @@
 *.test
 *.out
 node_modules
-auth_config.json
 app/node_modules
 app/build
 app/npm-debug.log*

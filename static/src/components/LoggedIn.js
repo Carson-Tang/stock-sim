@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useAuth0 } from "../react-auth0-spa";
 import { FiThumbsUp, FiThumbsDown } from "react-icons/fi";
 
 const LoggedIn = () => {
@@ -12,15 +11,7 @@ const LoggedIn = () => {
     "robin-hood": "",
     "real-world-vr": "",
   });
-
-  const {
-    getTokenSilently,
-    loading,
-    user,
-    logout,
-    isAuthenticated,
-  } = useAuth0();
-
+/* 
   useEffect(() => {
     const getProducts = async () => {
       try {
@@ -76,25 +67,25 @@ const LoggedIn = () => {
   if (loading || !user) {
     return <div>Loading...</div>;
   }
-
+ */
   return (
     <div className="container">
       <div className="jumbotron text-center mt-5">
-        {isAuthenticated && (
+        {/* {isAuthenticated && (
           <span
             className="btn btn-primary float-right"
             onClick={() => logout()}
           >
             Log out
           </span>
-        )}
+        )} */}
         <h1>We R VR</h1>
         <p>
-          Hi, {user.name}! Below you'll find the latest games that need
+          Hi, ! Below you'll find the latest games that need
           feedback. Please provide honest feedback so developers can make the
           best games.
         </p>
-        <div className="row">
+        {/*< div className="row">
           {products.map(function (product, index) {
             const prodSlug = product.Slug;
             return (
@@ -117,7 +108,7 @@ const LoggedIn = () => {
               </div>
             );
           })}
-        </div>
+        </div> */}
       </div>
     </div>
   );

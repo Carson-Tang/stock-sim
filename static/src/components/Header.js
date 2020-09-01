@@ -22,8 +22,8 @@ import CasinoOutlined from '@material-ui/icons/CasinoOutlined';
 import TrackChanges from '@material-ui/icons/TrackChanges'
 
 import clsx from 'clsx';
-import { useAuth0 } from "../react-auth0-spa";
 import history from '../history'
+import { useAuth } from '../context/auth';
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -99,13 +99,6 @@ const theme = createMuiTheme({
 });
 
 export default function PrimarySearchAppBar() {
-  const {
-    getTokenSilently,
-    loading,
-    user,
-    logout,
-    isAuthenticated,
-  } = useAuth0();
 
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -120,6 +113,12 @@ export default function PrimarySearchAppBar() {
     setAnchorEl(null);
   };
   
+  const { setAuthTokens } = useAuth()
+
+  function logout() {
+    setAuthTokens('')
+  }
+
   const menuId = 'primary-search-account-menu';
   const renderMenu = (
     <Menu
@@ -133,7 +132,7 @@ export default function PrimarySearchAppBar() {
     >
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
-      <MenuItem onClick={() => logout()}>Logout</MenuItem>
+      <MenuItem onClick={logout}>Logout</MenuItem>
     </Menu>
   );
   
