@@ -22,6 +22,13 @@ type User struct {
 	LastName  string `json:"lastname"`
 	Password  string `json:"password"`
 	Token     string `json:"token"`
+	Shares    []OwnedShares `json:"ownedshares"`
+}
+
+type OwnedShares struct {
+	StockName string `json:"stockname"`
+	Ticket string `json:"ticket"`
+	BoughtAt string `json:"boughtat"`
 }
 
 type ResponseResult struct {
@@ -44,7 +51,6 @@ func GetDBCollection() (*mongo.Collection, error) {
 }
 
 
-
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
@@ -52,9 +58,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	body, _ := ioutil.ReadAll(r.Body)
 	err := json.Unmarshal(body, &user)
 	var res ResponseResult
-	
-	fmt.Println("first")
-	fmt.Println(err)
+
 	if err != nil {
 		res.Error = err.Error()
 		json.NewEncoder(w).Encode(res)
@@ -62,8 +66,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	collection, err := GetDBCollection()
-	fmt.Println("second")
-	fmt.Println(err)
+
 	if err != nil {
 		res.Error = err.Error()
 		json.NewEncoder(w).Encode(res)
@@ -72,8 +75,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var result User
 	err = collection.FindOne(context.TODO(), bson.D{{"username", user.Username}}).Decode(&result)
 
-	fmt.Println("third")
-	fmt.Println(err)
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 5)
@@ -111,9 +112,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var user User
 	body, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(r.Body)
-	fmt.Println(body)
-	
+
 	err := json.Unmarshal(body, &user)
 	if err != nil {
 		log.Fatal(err)
@@ -129,8 +128,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = collection.FindOne(context.TODO(), bson.D{{"username", user.Username}}).Decode(&result)
 
-	fmt.Println("first")
-	fmt.Println(err)
 	if err != nil {
 		res.Error = "Invalid username"
 		json.NewEncoder(w).Encode(res)
@@ -138,8 +135,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(user.Password))
-	fmt.Println("second")
-	fmt.Println(err)
+
 	if err != nil {
 		res.Error = "Invalid password"
 		json.NewEncoder(w).Encode(res)
@@ -164,7 +160,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	result.Password = ""
 
 	json.NewEncoder(w).Encode(result)
-	fmt.Println("works")
 }
 
 func ProfileHandler(w http.ResponseWriter, r *http.Request) {
@@ -194,7 +189,32 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func BuyShareHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	tokenString := r.Header.Get("Authorization")
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method")
+		}
+		return []byte("secret"), nil
+	})
+	var result User
+	var res ResponseResult
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		result.Username = claims["username"].(string)
+		result.FirstName = claims["firstname"].(string)
+		result.LastName = claims["lastname"].(string)
 
+		json.NewEncoder(w).Encode(result)
+		return
+	} else {
+		res.Error = err.Error()
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
+}
 
 func Test(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -204,14 +224,11 @@ func Test(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/register", RegisterHandler).
-		Methods("POST")
-	r.HandleFunc("/login", LoginHandler).
-		Methods("POST")
-	r.HandleFunc("/profile", ProfileHandler).
-		Methods("GET")
-	r.HandleFunc("/test", Test).
-		Methods("POST")
+	r.HandleFunc("/register", RegisterHandler).Methods("POST")
+	r.HandleFunc("/login", LoginHandler).Methods("POST")
+	r.HandleFunc("/profile", ProfileHandler).Methods("GET")
+	r.HandleFunc("/test", Test).Methods("POST")
+	r.HandleFunc("/buyShare", BuyShareHandler).Methods("POST")
 
 	fmt.Println("Server is running")
 	corsWrapper := cors.New(cors.Options{

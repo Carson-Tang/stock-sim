@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { fade, makeStyles, ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import {
   AppBar, Toolbar, IconButton, Typography,
@@ -24,6 +24,10 @@ import TrackChanges from '@material-ui/icons/TrackChanges'
 import clsx from 'clsx';
 import history from '../history'
 import { useAuth } from '../context/auth';
+
+import nasdaqSymbols from '../nasdaqSymbols.json'
+import nyseSymbols from '../nyseSymbols.json'
+
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -64,6 +68,7 @@ const useStyles = makeStyles((theme) => ({
   },
   inputRoot: {
     color: 'inherit',
+    width: 250,
   },
   inputInput: {
     padding: theme.spacing(1, 1, 1, 0),
@@ -97,6 +102,25 @@ const theme = createMuiTheme({
     primary: { main: '#00e676' }
   },
 });
+
+const stockTickets = () => {
+  let res = []
+  nasdaqSymbols.forEach((v) => {
+    res.push({
+      "Symbol": v.Symbol,
+      "Company Name": v["Company Name"],
+      "Stock Exchange": "NASDAQ",
+    })
+  })
+  nyseSymbols.forEach((v) => {
+    res.push({
+      "Symbol": v["ACT Symbol"],
+      "Company Name": v["Company Name"],
+      "Stock Exchange": "NYSE",
+    })
+  })
+  return res
+}
 
 export default function PrimarySearchAppBar() {
 
@@ -184,11 +208,11 @@ export default function PrimarySearchAppBar() {
 
   const [ticket, setTicket] = useState('')
 
-  const searchTicket = () => {
+  const searchTicket = (ticket) => {
     history.push(`/stock/${ticket}`)
     window.location.reload() 
   }
-
+ 
   return (
     <div className={classes.grow}>
       <AppBar position="static" className={classes.appBar}>
@@ -221,19 +245,29 @@ export default function PrimarySearchAppBar() {
             <div className={classes.searchIcon}>
               <SearchIcon />
             </div>
-            {/* TODO: replace with autocomplete */}
-            <InputBase
-              placeholder="Search…"
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ 'aria-label': 'search' }}
-              onChange={(event) => setTicket(event.target.value)}
+            <Autocomplete
+              freeSolo
+              disableClearable
+              options={stockTickets().map(stock => `${stock["Symbol"]} - ${stock["Company Name"]}`)}
+              renderInput={(params) => (
+                <>
+                <InputBase
+                  placeholder="Search…"
+                  classes={{
+                    root: classes.inputRoot,
+                    input: classes.inputInput,
+                  }}
+                  ref={params.InputProps.ref}
+                  inputProps={params.inputProps}
+                  onChange={(e) => setTicket(e.target.value)}
+                />
+                </>
+              )}
+              onChange={(e, v) => setTicket(v.split(' ')[0])}
             />
           </div>
           <ThemeProvider theme={theme}>
-            <Button variant='contained' color='primary' onClick={() => searchTicket()}>Go</Button>
+            <Button variant='contained' color='primary' onClick={() => searchTicket(ticket)}>Go</Button>
           </ThemeProvider>
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
