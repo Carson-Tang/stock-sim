@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { fade, makeStyles, ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import {
   AppBar, Toolbar, IconButton, Typography,
   InputBase, Badge, MenuItem, Menu,
   SwipeableDrawer, Button, List, Divider,
   ListItem, ListItemIcon, ListItemText,
-  TextField,
 } from '@material-ui/core';
 
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -16,12 +15,11 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import FolderOpen from '@material-ui/icons/FolderOpen'
-import InboxIcon from '@material-ui/icons/MoveToInbox';
 import ShowChart from '@material-ui/icons/ShowChart';
 import CasinoOutlined from '@material-ui/icons/CasinoOutlined';
 import TrackChanges from '@material-ui/icons/TrackChanges'
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
-import clsx from 'clsx';
 import history from '../history'
 import { useAuth } from '../context/auth';
 
@@ -94,12 +92,16 @@ const useStyles = makeStyles((theme) => ({
   },
   appBar: {
     backgroundColor: '#05386b'
+  },
+  goBtn: {
+    backgroundColor: '#21ce99',
+    color: '#ffffff',
   }
 }));
 
 const theme = createMuiTheme({
   palette: {
-    primary: { main: '#00e676' }
+    primary: { main: '#21ce99' /* '#00e676' */ }
   },
 });
 
@@ -202,6 +204,10 @@ export default function PrimarySearchAppBar() {
           <ListItemIcon><CasinoOutlined /></ListItemIcon>
           <ListItemText primary='Options' />
         </ListItem>
+        <ListItem button key='About' onClick={() => changePage('about')}>
+          <ListItemIcon><InfoOutlinedIcon /></ListItemIcon>
+          <ListItemText primary='About' />
+        </ListItem>
       </List>
     </div>
   );
@@ -267,7 +273,8 @@ export default function PrimarySearchAppBar() {
             />
           </div>
           <ThemeProvider theme={theme}>
-            <Button variant='contained' color='primary' onClick={() => searchTicket(ticket)}>Go</Button>
+            <Button variant='contained' color='primary' onClick={() => searchTicket(ticket)}
+              className={classes.goBtn}>Go</Button>
           </ThemeProvider>
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>

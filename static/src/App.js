@@ -1,25 +1,34 @@
 import React, { useState } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
-import Home from './components/Home.js';
-import LoggedIn from './components/LoggedIn.js';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import About from './components/About.js';
 import Portfolio from './components/Portfolio.js';
 import Stock from './components/Stock.js';
-import Header from './components/Header.js'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import Watchlist from './components/Watchlist.js';
+import StocksPage from './components/StocksPage.js';
+import Header from './components/Header.js';
 import PrivateRoute from './PrivateRoute';
 import { AuthContext } from "./context/auth";
 import Login from './components/Login.js'
 import Register from './components/Register.js'
 import HomePage from './components/HomePage.js'
 import { ThemeProvider } from '@material-ui/styles'
-import { makeStyles, createMuiTheme } from '@material-ui/core/styles';
+import { createMuiTheme } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
 
 const theme = createMuiTheme({
+/*   palette: {
+    type: 'dark',
+    background: {
+      container: "#000000",
+      paper: "#000000"
+    }
+  } */
   palette: {
-    type: 'light',
+    type: 'dark',
+    background: {
+      default: "#000220"
+    },
   }
 })
 
@@ -50,8 +59,10 @@ const App = () => {
           }
           { authTokens &&
             <>
-              <PrivateRoute exact path='/' component={LoggedIn} />
+              <PrivateRoute exact path='/' component={Portfolio} />
               <PrivateRoute path='/portfolio' component={Portfolio} />
+              <PrivateRoute path='/watchlist' component={Watchlist} />
+              <PrivateRoute path='/stocks' component={StocksPage} />
               <PrivateRoute path='/stock/:ticket' component={Stock} />
               <PrivateRoute path='/about' component={About} />
             </>

@@ -23,6 +23,12 @@ type User struct {
 	Password  string `json:"password"`
 	Token     string `json:"token"`
 	Shares    []OwnedShares `json:"ownedshares"`
+	Watchlist []WatchlistShares `json:"watchlistshares"`	
+}
+
+type WatchlistShares struct {
+	StockName string `json:"stockname"`
+	Ticket string `json:"ticket"`
 }
 
 type OwnedShares struct {

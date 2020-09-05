@@ -1,17 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
+import React, { useState } from 'react';
+import {
+  Avatar, Box, Button, Container,
+  CssBaseline, Grid, Link,
+  TextField, Typography
+} from '@material-ui/core'
+
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
 import Alert from '@material-ui/lab/Alert';
 import history from "./../history";
 import { useAuth } from '../context/auth';
@@ -113,7 +108,7 @@ export default function Register() {
       )
       .then(response => response.json())
       .then(function(data) {
-        if(data.result == "Registration Successful"){
+        if(data.result === "Registration Successful"){
           doLogin()
         } else {
           setErrorText(data.result)
@@ -213,7 +208,7 @@ export default function Register() {
             variant="contained"
             color="primary"
             className={classes.submit}
-            disabled={password != passwordAgain || firstName == '' || lastName == '' || username == ''}
+            disabled={password !== passwordAgain || firstName === '' || lastName === '' || username === ''}
             onClick={() => doRegister()}
           >
             Sign Up

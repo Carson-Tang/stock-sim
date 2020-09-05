@@ -1,16 +1,10 @@
 import React from 'react';
-import { makeStyles, createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
-import Container from '@material-ui/core/Container'
-import { green, red } from '@material-ui/core/colors';
+import { makeStyles } from '@material-ui/core/styles';
+import {
+  Container, Grid,
+  Table, TableBody, TableCell,
+  TableHead, TableRow, Typography
+} from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
   table: {
@@ -21,10 +15,10 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(4),
   },
   green: {
-    color: '#008000',
+    color: '#21ce99',
   },
   red: {
-    color: '#ff0000',
+    color: '#f45532',
   }
 }));
 
@@ -48,14 +42,14 @@ export default function Portfolio() {
     return <span className={percentageChange > 0 ? classes.green : classes.red}>
       {
         value > 0 ? 
-        `$${value}` : 
-        `-$${-value}`
+        `$${value.toFixed(2)}` : 
+        `-$${(-value).toFixed(2)}`
       }
       {' '}
       {
         percentageChange > 0 ? 
-        `(+${percentageChange}%)` :
-        `(${percentageChange}%)`
+        `(+${percentageChange.toFixed(2)}%)` :
+        `(${percentageChange.toFixed(2)}%)`
       }
     </span>
   }
@@ -99,7 +93,7 @@ export default function Portfolio() {
           <Typography component="h2" variant="h6" color="primary" gutterBottom>
             Portfolio
           </Typography>
-          <Paper>
+          {/* <Paper> */}
           <Table size="small" className={classes.table} aria-label="simple table">
             <TableHead>
               <TableRow>
@@ -118,19 +112,19 @@ export default function Portfolio() {
                   <TableCell align="center">{row.stockName}</TableCell>
                   <TableCell align="center">{row.symbol}</TableCell>
                   <TableCell align="center">{row.shares}</TableCell>
-                  <TableCell align="center">${row.value}</TableCell>
+                  <TableCell align="center">${row.value.toFixed(2)}</TableCell>
                   <TableCell align="center">
                     { coloredDollar(row.todayReturn, row.percentageChange) }
                   </TableCell>
                   <TableCell align="center">
                     { coloredDollar(row.totalReturn, row.percentageChange) }
                   </TableCell>
-                  <TableCell align="center">${row.pricePerShare}</TableCell>
+                  <TableCell align="center">${row.pricePerShare.toFixed(2)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          </Paper>
+          {/* </Paper> */}
         </Grid>
         </Grid>
       </Container>

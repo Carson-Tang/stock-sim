@@ -6,6 +6,4 @@
 *.test
 *.out
 node_modules
-app/node_modules
-app/build
-app/npm-debug.log*
+alphavantageApiKey.json
