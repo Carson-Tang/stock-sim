@@ -3,6 +3,7 @@ import './App.css';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import About from './components/About.js';
 import Portfolio from './components/Portfolio.js';
+import Settings from './components/Settings.js';
 import Stock from './components/Stock.js';
 import Watchlist from './components/Watchlist.js';
 import StocksPage from './components/StocksPage.js';
@@ -62,6 +63,7 @@ const App = () => {
               <PrivateRoute exact path='/' component={Portfolio} />
               <PrivateRoute path='/portfolio' component={Portfolio} />
               <PrivateRoute path='/watchlist' component={Watchlist} />
+              <PrivateRoute path='/settings' component={Settings} />
               <PrivateRoute path='/stocks' component={StocksPage} />
               <PrivateRoute path='/stock/:ticket' component={Stock} />
               <PrivateRoute path='/about' component={About} />

@@ -2,8 +2,9 @@
 
 ![](stockView.gif)
 
-Stock data pulled from [Alpha Vantage](https://www.alphavantage.co/documentation/)
-Charts created with [React-StockCharts](http://rrag.github.io/react-stockcharts/documentation.html) and [d3.js](https://github.com/d3/d3/wiki)
+Stock data pulled from [Alpha Vantage](https://www.alphavantage.co/documentation/).
+
+Charts created with [React-StockCharts](http://rrag.github.io/react-stockcharts/documentation.html) and [d3.js](https://github.com/d3/d3/wiki).
 
 ## Environment setup
 

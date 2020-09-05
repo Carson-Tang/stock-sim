@@ -144,6 +144,11 @@ export default function PrimarySearchAppBar() {
   function logout() {
     setAuthTokens('')
   }
+  
+  const changePage = (page) => {
+    history.push(`/${page}`)
+    window.location.reload()
+  }
 
   const menuId = 'primary-search-account-menu';
   const renderMenu = (
@@ -156,16 +161,11 @@ export default function PrimarySearchAppBar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
+      <MenuItem onClick={() => changePage('portfolio')}>Profile</MenuItem>
+      <MenuItem onClick={() => changePage('settings')}>Settings</MenuItem>
       <MenuItem onClick={logout}>Logout</MenuItem>
     </Menu>
   );
-  
-  const changePage = (page) => {
-    history.push(`/${page}`)
-    window.location.reload()
-  }
 
   const [drawerVisible, setDrawerVisible] = useState(false);
 
