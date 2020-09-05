@@ -19,6 +19,7 @@ import ShowChart from '@material-ui/icons/ShowChart';
 import CasinoOutlined from '@material-ui/icons/CasinoOutlined';
 import TrackChanges from '@material-ui/icons/TrackChanges'
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
+import EqualizerIcon from '@material-ui/icons/Equalizer'
 
 import history from '../history'
 import { useAuth } from '../context/auth';
@@ -143,6 +144,7 @@ export default function PrimarySearchAppBar() {
 
   function logout() {
     setAuthTokens('')
+    changePage('')
   }
   
   const changePage = (page) => {
@@ -189,6 +191,10 @@ export default function PrimarySearchAppBar() {
           <ListItemIcon><FolderOpen /></ListItemIcon>
           <ListItemText primary='Portfolio' />
         </ListItem>
+        <ListItem button key='Statistics' onClick={() => changePage('statistics')}>
+          <ListItemIcon><EqualizerIcon /></ListItemIcon>
+          <ListItemText primary='Statistics' />
+        </ListItem>
       </List>
       <Divider />
       <List>
@@ -204,6 +210,9 @@ export default function PrimarySearchAppBar() {
           <ListItemIcon><CasinoOutlined /></ListItemIcon>
           <ListItemText primary='Options' />
         </ListItem>
+      </List>
+      <Divider />
+      <List>
         <ListItem button key='About' onClick={() => changePage('about')}>
           <ListItemIcon><InfoOutlinedIcon /></ListItemIcon>
           <ListItemText primary='About' />

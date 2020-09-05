@@ -193,7 +193,6 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(res)
 		return
 	}
-
 }
 
 func BuyShareHandler(w http.ResponseWriter, r *http.Request) {

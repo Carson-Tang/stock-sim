@@ -8,6 +8,7 @@ import Stock from './components/Stock.js';
 import Watchlist from './components/Watchlist.js';
 import StocksPage from './components/StocksPage.js';
 import Header from './components/Header.js';
+import Statistics from './components/Statistics.js'
 import PrivateRoute from './PrivateRoute';
 import { AuthContext } from "./context/auth";
 import Login from './components/Login.js'
@@ -61,9 +62,10 @@ const App = () => {
           { authTokens &&
             <>
               <PrivateRoute exact path='/' component={Portfolio} />
-              <PrivateRoute path='/portfolio' component={Portfolio} />
-              <PrivateRoute path='/watchlist' component={Watchlist} />
               <PrivateRoute path='/settings' component={Settings} />
+              <PrivateRoute path='/portfolio' component={Portfolio} />
+              <PrivateRoute path='/statistics' component={Statistics} />
+              <PrivateRoute path='/watchlist' component={Watchlist} />
               <PrivateRoute path='/stocks' component={StocksPage} />
               <PrivateRoute path='/stock/:ticket' component={Stock} />
               <PrivateRoute path='/about' component={About} />
