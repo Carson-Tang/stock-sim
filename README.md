@@ -1,6 +1,6 @@
 # stock-simulator
 
-![](stockView.gif)
+![](stockView2.gif)
 
 ## Environment setup
 
