@@ -1,5 +1,7 @@
 # stock-simulator
 
+![](stockView.gif)
+
 ## Environment setup
 
 You need to have [Go](https://golang.org/),
