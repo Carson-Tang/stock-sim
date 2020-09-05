@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Button, ButtonGroup, CircularProgress,
   Container, CssBaseline, Grid,
@@ -213,7 +213,7 @@ class Stock extends React.Component {
         </Grid>
         <Grid item xs={12}>
           {
-            selectedChartTime === "Intraday" && intradayData && intradayData.length == 100 ? 
+            selectedChartTime === "Intraday" && intradayData && intradayData.length === 100 ? 
             <Chart data={intradayData} /> :
             dailyData && dailyData.length ?
             <Chart data={dailyData} /> : <CircularProgress />

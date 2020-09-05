@@ -22,6 +22,7 @@ type User struct {
 	LastName  string `json:"lastname"`
 	Password  string `json:"password"`
 	Token     string `json:"token"`
+	Balance   string `json:"balance"`
 	Shares    []OwnedShares `json:"ownedshares"`
 	Watchlist []WatchlistShares `json:"watchlistshares"`	
 }
@@ -219,7 +220,84 @@ func BuyShareHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(res)
 		return
 	}
+}
 
+func SellShareHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	tokenString := r.Header.Get("Authorization")
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method")
+		}
+		return []byte("secret"), nil
+	})
+	var result User
+	var res ResponseResult
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		result.Username = claims["username"].(string)
+		result.FirstName = claims["firstname"].(string)
+		result.LastName = claims["lastname"].(string)
+
+		json.NewEncoder(w).Encode(result)
+		return
+	} else {
+		res.Error = err.Error()
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+}
+
+func AddToWatchlistHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	tokenString := r.Header.Get("Authorization")
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method")
+		}
+		return []byte("secret"), nil
+	})
+	var result User
+	var res ResponseResult
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		result.Username = claims["username"].(string)
+		result.FirstName = claims["firstname"].(string)
+		result.LastName = claims["lastname"].(string)
+
+		json.NewEncoder(w).Encode(result)
+		return
+	} else {
+		res.Error = err.Error()
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+}
+
+func RemoveFromWatchlistHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	tokenString := r.Header.Get("Authorization")
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method")
+		}
+		return []byte("secret"), nil
+	})
+	var result User
+	var res ResponseResult
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		result.Username = claims["username"].(string)
+		result.FirstName = claims["firstname"].(string)
+		result.LastName = claims["lastname"].(string)
+
+		json.NewEncoder(w).Encode(result)
+		return
+	} else {
+		res.Error = err.Error()
+		json.NewEncoder(w).Encode(res)
+		return
+	}
 }
 
 func Test(w http.ResponseWriter, r *http.Request) {
@@ -234,7 +312,11 @@ func main() {
 	r.HandleFunc("/login", LoginHandler).Methods("POST")
 	r.HandleFunc("/profile", ProfileHandler).Methods("GET")
 	r.HandleFunc("/test", Test).Methods("POST")
-	r.HandleFunc("/buyShare", BuyShareHandler).Methods("POST")
+	r.HandleFunc("/buyShare", BuyShareHandler).Methods("PUT")
+	r.HandleFunc("/sellShare", SellShareHandler).Methods("PUT")
+	r.HandleFunc("/addToWatchlist", AddToWatchlistHandler).Methods("PUT")
+	r.HandleFunc("/removeFromWatchlist", RemoveFromWatchlistHandler).Methods("DELETE")
+
 
 	fmt.Println("Server is running")
 	corsWrapper := cors.New(cors.Options{
