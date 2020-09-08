@@ -29,7 +29,7 @@ const theme = createMuiTheme({
   palette: {
     type: 'dark',
     background: {
-      default: "#000220"
+      default: "#000112"//"#040d14"//"#000112"//"#000220"
     },
   }
 })

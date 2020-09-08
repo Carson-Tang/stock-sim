@@ -8,7 +8,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"encoding/json"
-	"fmt"	
+	"fmt"
+	"time"
 	"io/ioutil"
 	jwt "github.com/dgrijalva/jwt-go"
 	"go.mongodb.org/mongo-driver/bson"
@@ -22,9 +23,10 @@ type User struct {
 	LastName  string `json:"lastname"`
 	Password  string `json:"password"`
 	Token     string `json:"token"`
-	Balance   string `json:"balance"`
+	Balance   float64 `json:"balance"`
 	Shares    []OwnedShares `json:"ownedshares"`
-	Watchlist []WatchlistShares `json:"watchlistshares"`	
+	Watchlist []WatchlistShares `json:"watchlistshares"`
+	PortfolioValue []DailyPortfolio `json:"portfoliovalue"`
 }
 
 type WatchlistShares struct {
@@ -35,7 +37,12 @@ type WatchlistShares struct {
 type OwnedShares struct {
 	StockName string `json:"stockname"`
 	Ticket string `json:"ticket"`
-	BoughtAt string `json:"boughtat"`
+	BoughtAt float64 `json:"boughtat"`
+}
+
+type DailyPortfolio struct {
+	Time time.Time `json:"time"`
+	Value float64 `json:"value"`
 }
 
 type ResponseResult struct {
@@ -92,6 +99,10 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			user.Password = string(hash)
+			user.Balance = 10000
+			user.Shares = []OwnedShares{}
+			user.Watchlist = []WatchlistShares{}
+			user.PortfolioValue = []DailyPortfolio{}
 
 			_, err = collection.InsertOne(context.TODO(), user)
 			if err != nil {
@@ -182,9 +193,18 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	var result User
 	var res ResponseResult
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		result.Username = claims["username"].(string)
+		/* result.Username = claims["username"].(string)
 		result.FirstName = claims["firstname"].(string)
-		result.LastName = claims["lastname"].(string)
+		result.LastName = claims["lastname"].(string) */
+		collection, _ := GetDBCollection()
+
+		err = collection.FindOne(context.TODO(), bson.D{{"username", claims["username"].(string)}}).Decode(&result)
+		if err != nil {
+			res.Error = err.Error()
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+		result.Password = ""
 
 		json.NewEncoder(w).Encode(result)
 		return
