@@ -24,9 +24,9 @@ type User struct {
 	Password  string `json:"password"`
 	Token     string `json:"token"`
 	Balance   float64 `json:"balance"`
-	Shares    []OwnedShares `json:"ownedshares"`
-	Watchlist []WatchlistShares `json:"watchlistshares"`
-	PortfolioValue []DailyPortfolio `json:"portfoliovalue"`
+	Shares    []OwnedShares `json:"ownedshares" bson:"ownedshares"`
+	Watchlist []WatchlistShares `json:"watchlistshares" bson:"watchlistshares"`
+	PortfolioValue []DailyPortfolio `json:"portfoliovalue" bson:"portfoliovalue"`
 }
 
 type WatchlistShares struct {
@@ -193,19 +193,16 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	var result User
 	var res ResponseResult
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		/* result.Username = claims["username"].(string)
-		result.FirstName = claims["firstname"].(string)
-		result.LastName = claims["lastname"].(string) */
 		collection, _ := GetDBCollection()
 
 		err = collection.FindOne(context.TODO(), bson.D{{"username", claims["username"].(string)}}).Decode(&result)
+
 		if err != nil {
 			res.Error = err.Error()
 			json.NewEncoder(w).Encode(res)
 			return
 		}
 		result.Password = ""
-
 		json.NewEncoder(w).Encode(result)
 		return
 	} else {
@@ -277,14 +274,52 @@ func AddToWatchlistHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return []byte("secret"), nil
 	})
-	var result User
 	var res ResponseResult
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		result.Username = claims["username"].(string)
-		result.FirstName = claims["firstname"].(string)
-		result.LastName = claims["lastname"].(string)
+	var watchlistshare WatchlistShares
 
-		json.NewEncoder(w).Encode(result)
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		
+		body, _ := ioutil.ReadAll(r.Body)
+
+		err := json.Unmarshal(body, &watchlistshare)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(watchlistshare)
+
+		collection, _ := GetDBCollection()
+		
+		query := bson.D{{"username", claims["username"].(string)}}
+		
+		update := bson.M{
+			"$addToSet": bson.M{
+				"watchlistshares": bson.M{
+					"$each": []WatchlistShares{watchlistshare},
+				},
+			},
+		}
+
+		updres, err := collection.UpdateOne(context.TODO(), query, update)
+		
+		if err != nil {
+			res.Error = err.Error()
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		var result User
+		err = collection.FindOne(context.TODO(), query).Decode(&result)
+		if err != nil {
+			res.Error = err.Error()
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+		if updres.ModifiedCount == 0 {
+			res.Result = watchlistshare.Ticket + " is already on the watchlist."
+		} else {
+			res.Result = "Successfully added " + watchlistshare.Ticket + " to watchlist."
+		}
+		json.NewEncoder(w).Encode(res)
 		return
 	} else {
 		res.Error = err.Error()
@@ -333,7 +368,7 @@ func main() {
 	r.HandleFunc("/test", Test).Methods("POST")
 	r.HandleFunc("/buyShare", BuyShareHandler).Methods("PUT")
 	r.HandleFunc("/sellShare", SellShareHandler).Methods("PUT")
-	r.HandleFunc("/addToWatchlist", AddToWatchlistHandler).Methods("PUT")
+	r.HandleFunc("/addToWatchlist", AddToWatchlistHandler).Methods("POST")
 	r.HandleFunc("/removeFromWatchlist", RemoveFromWatchlistHandler).Methods("DELETE")
 
 

@@ -66,6 +66,7 @@ export default function Portfolio() {
         console.error(error);
       }
     }
+    console.log('get')
     getProfile()
   }, [authTokens])
 

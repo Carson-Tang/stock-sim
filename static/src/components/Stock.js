@@ -199,12 +199,12 @@ const Stock = (props) => {
   }
 
   async function handleAddToWatchlist(stockname, ticket) {
-    console.log(ticket)
+    console.log(stockname, ticket)
     try {
       await fetch(
         `http://localhost:8080/addToWatchlist`,
         {
-          method: "PUT",
+          method: "POST",
           headers: {
             'Authorization': authTokens,
           },
@@ -226,6 +226,7 @@ const Stock = (props) => {
   function renderStockData(data) {
     return <>
       <Grid item xs={12}>
+        <Button onClick={() => console.log(profileData)}> test </Button>
         <Typography display="inline" component="h3" variant="h3" >
           {companyInfo.Name}{' '}({data["01. symbol"]})
         </Typography>
@@ -235,7 +236,7 @@ const Stock = (props) => {
       </Grid>
       <Grid item xs={12}>
         <Typography component="h3" variant="caption" >
-          <IconButton size="small" onClick={() => handleAddToWatchlist(data["01. symbol"])}>
+          <IconButton size="small" onClick={() => handleAddToWatchlist(companyInfo.Name, data["01. symbol"])}>
             {
               true ? <> Add to watchlist <Add /> </>
                     : <> Remove from watchlist <CheckIcon /></>
