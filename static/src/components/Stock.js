@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Button, ButtonGroup,
   Container, CssBaseline, Grid,
@@ -10,12 +10,14 @@ import { makeStyles } from '@material-ui/core/styles';
 import TrendingUp from '@material-ui/icons/TrendingUp';
 import TrendingDown from '@material-ui/icons/TrendingDown';
 import Add from '@material-ui/icons/Add';
-import CheckIcon from '@material-ui/icons/Check';
+import CloseIcon from '@material-ui/icons/Close';
 
 import ApiKey from '../alphavantageApiKey.json'
 
 import Chart from './Chart.js'
 import { timeParse } from 'd3-time-format'
+import { useAuth } from '../context/auth';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -55,32 +57,11 @@ const Stock = (props) => {
 
   const existingTokens = JSON.parse(localStorage.getItem("tokens"))
   const [authTokens, setAuthTokens] = useState(existingTokens);
-  const [profileData, setProfileData] = useState()
+  const { profileData } = useAuth()
+
   const stockTicket = props.match.params.ticket
 
   useEffect(() => {
-    async function getProfile() {
-      try {
-        await fetch(
-          `http://localhost:8080/profile`,
-          {
-            method: "GET",
-            headers: {
-              'Authorization': authTokens,
-            }
-          }
-        )
-        .then(response => response.json())
-        .then(function(data) {
-          console.log(data)
-          if(data.error)
-            return
-          setProfileData(data)
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    }
     async function getStockInfo() {
       await fetch(`http://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${stockTicket}&apikey=${ApiKey.key}`)
         .then(res => res.json())
@@ -155,18 +136,19 @@ const Stock = (props) => {
       )
     }
 
-    getProfile()
+    //getProfile()
     getStockInfo()
     getCompanyInfo()
     getIntradayData()
     getDailyData()
-  }, [authTokens])
+  }, [])
 
   const [stockInfo, setStockInfo] = useState([])
   const [companyInfo, setCompanyInfo] = useState([])
   const [intradayData, setIntradayData] = useState([])
   const [dailyData, setDailyData] = useState([])
   const [selectedChartTime, setSelectedChartTime] = useState("Intraday")
+  const [isInWatchlist, setIsInWatchlist] = useState(false)
 
   const coloredDollar = (value, percentageChange) => {
     return <span className={percentageChange > 0 ? classes.green : classes.red}>
@@ -198,6 +180,16 @@ const Stock = (props) => {
       (v).toFixed(2)
   }
 
+  useEffect(() => {
+    if (!profileData)
+      return
+    profileData.watchlistshares.forEach((stock) => {
+      if (stock.ticket == stockTicket){
+        setIsInWatchlist(true)
+      }
+    })
+  }, [profileData])
+
   async function handleAddToWatchlist(stockname, ticket) {
     console.log(stockname, ticket)
     try {
@@ -216,6 +208,33 @@ const Stock = (props) => {
       )
       .then(response => response.json())
       .then(function(data) {
+        setIsInWatchlist(true)
+        console.log(data)
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function handleRemoveFromWatchlist(stockname, ticket) {
+    console.log(stockname, ticket)
+    try {
+      await fetch(
+        `http://localhost:8080/removeFromWatchlist`,
+        {
+          method: "POST",
+          headers: {
+            'Authorization': authTokens,
+          },
+          body: JSON.stringify({
+            "stockname": stockname,
+            "ticket": ticket,
+          })
+        }
+      )
+      .then(response => response.json())
+      .then(function(data) {
+        setIsInWatchlist(false)
         console.log(data)
       });
     } catch (error) {
@@ -236,10 +255,14 @@ const Stock = (props) => {
       </Grid>
       <Grid item xs={12}>
         <Typography component="h3" variant="caption" >
-          <IconButton size="small" onClick={() => handleAddToWatchlist(companyInfo.Name, data["01. symbol"])}>
+          <IconButton size="small"
+            onClick={() => isInWatchlist ?
+            handleRemoveFromWatchlist(companyInfo.Name, data["01. symbol"]) :
+            handleAddToWatchlist(companyInfo.Name, data["01. symbol"])}
+          >
             {
-              true ? <> Add to watchlist <Add /> </>
-                    : <> Remove from watchlist <CheckIcon /></>
+              isInWatchlist ? <> Remove from watchlist <CloseIcon /></>
+                    : <> Add to watchlist <Add /> </>
             }
           </IconButton>
           <Button variant="outlined" color="primary" className={classes.greenBtn}>Buy</Button>

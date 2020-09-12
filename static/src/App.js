@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import About from './components/About.js';
@@ -44,8 +44,37 @@ const App = () => {
     setAuthTokens(data);
   }
 
+  const [profileData, setProfile] = useState('')
+
+  useEffect(() => {
+    async function getProfile() {
+			console.log('getting profile')
+      try {
+        await fetch(
+          `http://localhost:8080/profile`,
+          {
+            method: "GET",
+            headers: {
+              'Authorization': authTokens,
+            }
+          }
+        )
+        .then(response => response.json())
+        .then(function(data) {
+          console.log(data)
+          if(data.error)
+            return
+          setProfile(data)
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    getProfile()
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ authTokens, setAuthTokens: setTokens }}>
+    <AuthContext.Provider value={{ authTokens, setAuthTokens: setTokens, profileData }}>
       <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>

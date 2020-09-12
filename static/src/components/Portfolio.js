@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
+  Button,
   Container, Grid,
   Table, TableBody, TableCell,
   TableHead, TableRow, Typography
 } from '@material-ui/core'
 import Loading from './Loading'
+import { useAuth } from '../context/auth';
 
 const useStyles = makeStyles((theme) => ({
   table: {
@@ -41,35 +43,7 @@ export default function Portfolio() {
 
   const existingTokens = JSON.parse(localStorage.getItem("tokens"))
   const [authTokens, setAuthTokens] = useState(existingTokens);
-  const [profileData, setProfileData] = useState()
-
-  useEffect(() => {
-    async function getProfile() {
-      try {
-        await fetch(
-          `http://localhost:8080/profile`,
-          {
-            method: "GET",
-            headers: {
-              'Authorization': authTokens,
-            }
-          }
-        )
-        .then(response => response.json())
-        .then(function(data) {
-          console.log(data)
-          if(data.error)
-            return
-          setProfileData(data)
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    console.log('get')
-    getProfile()
-  }, [authTokens])
-
+  const { profileData } = useAuth()
 
   const coloredDollar = (value, percentageChange) => {
     return <span className={percentageChange > 0 ? classes.green : classes.red}>
@@ -90,6 +64,7 @@ export default function Portfolio() {
   return (
     <React.Fragment>
       <Container maxWidth="lg" className={classes.container}>
+        <Button onClick={() => console.log(profileData)}>click me </Button>
         <Grid container spacing={3}>
           {
             profileData ?

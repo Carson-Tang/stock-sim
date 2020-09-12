@@ -5,6 +5,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import history from "./../history";
+import { useAuth } from '../context/auth';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -31,38 +32,11 @@ export default function Settings() {
 
   const existingTokens = JSON.parse(localStorage.getItem("tokens"))
   const [authTokens, setAuthTokens] = useState(existingTokens);
-
-  const [profileData, setProfileData] = useState()
+  const { profileData } = useAuth()
 
   const [newFirstName, setNewFirstName] = useState('')
   const [newLastName, setNewLastName] = useState('')
 
-
-  useEffect(() => {
-    async function getProfile() {
-      try {
-        await fetch(
-          `http://localhost:8080/profile`,
-          {
-            method: "GET",
-            headers: {
-              'Authorization': authTokens,
-            }
-          }
-        )
-        .then(response => response.json())
-        .then(function(data) {
-          console.log(data)
-          if(data.error)
-            return
-          setProfileData(data)
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    getProfile()
-  }, [authTokens])
 
   return (
     <Container component="main" maxWidth="xs" className={classes.container}>

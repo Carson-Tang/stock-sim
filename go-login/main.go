@@ -338,14 +338,50 @@ func RemoveFromWatchlistHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return []byte("secret"), nil
 	})
-	var result User
 	var res ResponseResult
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		result.Username = claims["username"].(string)
-		result.FirstName = claims["firstname"].(string)
-		result.LastName = claims["lastname"].(string)
+	var watchlistshare WatchlistShares
 
-		json.NewEncoder(w).Encode(result)
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		
+		body, _ := ioutil.ReadAll(r.Body)
+
+		err := json.Unmarshal(body, &watchlistshare)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(watchlistshare)
+
+		collection, _ := GetDBCollection()
+		
+		query := bson.D{{"username", claims["username"].(string)}}
+		
+		update := bson.M{
+			"$pull": bson.M{
+				"watchlistshares": watchlistshare,
+			},
+		}
+
+		updres, err := collection.UpdateOne(context.TODO(), query, update)
+		
+		if err != nil {
+			res.Error = err.Error()
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		var result User
+		err = collection.FindOne(context.TODO(), query).Decode(&result)
+		if err != nil {
+			res.Error = err.Error()
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+		if updres.ModifiedCount == 0 {
+			res.Result = watchlistshare.Ticket + " is not on the watchlist."
+		} else {
+			res.Result = "Successfully removed " + watchlistshare.Ticket + " from the watchlist."
+		}
+		json.NewEncoder(w).Encode(res)
 		return
 	} else {
 		res.Error = err.Error()
@@ -369,7 +405,7 @@ func main() {
 	r.HandleFunc("/buyShare", BuyShareHandler).Methods("PUT")
 	r.HandleFunc("/sellShare", SellShareHandler).Methods("PUT")
 	r.HandleFunc("/addToWatchlist", AddToWatchlistHandler).Methods("POST")
-	r.HandleFunc("/removeFromWatchlist", RemoveFromWatchlistHandler).Methods("DELETE")
+	r.HandleFunc("/removeFromWatchlist", RemoveFromWatchlistHandler).Methods("POST")
 
 
 	fmt.Println("Server is running")

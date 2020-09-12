@@ -5,6 +5,7 @@ import {
   Table, TableBody, TableCell,
   TableHead, TableRow, Typography
 } from '@material-ui/core'
+import { useAuth } from '../context/auth';
 
 const useStyles = makeStyles((theme) => ({
   table: {
@@ -41,33 +42,7 @@ export default function Portfolio() {
 
   const existingTokens = JSON.parse(localStorage.getItem("tokens"))
   const [authTokens, setAuthTokens] = useState(existingTokens);
-  const [profileData, setProfileData] = useState()
-
-  useEffect(() => {
-    async function getProfile() {
-      try {
-        await fetch(
-          `http://localhost:8080/profile`,
-          {
-            method: "GET",
-            headers: {
-              'Authorization': authTokens,
-            }
-          }
-        )
-        .then(response => response.json())
-        .then(function(data) {
-          console.log(data)
-          if(data.error)
-            return
-          setProfileData(data)
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    getProfile()
-  }, [authTokens])
+  const { profileData } = useAuth()
 
   return (
     <React.Fragment>
